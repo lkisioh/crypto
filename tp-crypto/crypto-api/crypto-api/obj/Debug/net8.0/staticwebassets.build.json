@@ -1,0 +1,12 @@
+{
+  "Version": 1,
+  "Hash": "ocydPJxH5sGtVmyZFkjxfTcQMRxtXFEPO2Aw45LK+cs=",
+  "Source": "crypto-api",
+  "BasePath": "_content/crypto-api",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [],
+  "Assets": [],
+  "Endpoints": []
+}
