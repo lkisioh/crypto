@@ -1,7 +1,14 @@
 import { createRouter, createWebHistory } from 'vue-router'
+
 import HomeView from '../views/HomeView.vue'
 import ClientsView from '../views/ClientsView.vue'
-import ClientTransactionsView from '../views/ClientTransactionsView.vue'
+import TransactionsView from '../views/TransactionsView.vue'
+
+import NewClientView from '../components/modules/client/components/NewClientView.vue'
+import ClientListView from '../components/modules/client/components/ClientListView.vue'
+
+import NewTransactionView from '../components/modules/transaction/components/NewTransactionView.vue'
+import TransactionListView from '../components/modules/transaction/components/TransactionListView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -18,9 +25,29 @@ const router = createRouter({
       component: ClientsView
     },
     {
-      path: '/Transactions',
+      path: '/transactions',
       name: 'transactions',
-      component: ClientTransactionsView
+      component: TransactionsView
+    },
+    {
+      path: '/clients/new',
+      name: 'newclient',
+      component: NewClientView
+    },
+    {
+      path: '/clients/list',
+      name: 'clientlist',
+      component: ClientListView
+    },
+    {
+      path: '/transactions/new',
+      name: 'newtransaction',
+      component: NewTransactionView
+    },
+    {
+      path: '/transactions/list',
+      name: 'transactionlist',
+      component: TransactionListView
     }
   ],
 })

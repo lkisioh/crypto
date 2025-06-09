@@ -558,3 +558,4 @@ C:\Users\Marcos\Documents\programación\tp-crypto\crypto-api\crypto-api\obj\Debu
 C:\Users\Marcos\Documents\programación\tp-crypto\crypto-api\crypto-api\obj\Debug\net8.0\crypto-api.pdb
 C:\Users\Marcos\Documents\programación\tp-crypto\crypto-api\crypto-api\obj\Debug\net8.0\crypto-api.genruntimeconfig.cache
 C:\Users\Marcos\Documents\programación\tp-crypto\crypto-api\crypto-api\obj\Debug\net8.0\ref\crypto-api.dll
+C:\Users\Marcos\Documents\programación\tp-crypto\crypto-api\crypto-api\obj\Debug\net8.0\crypto-api.sourcelink.json

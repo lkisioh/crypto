@@ -1,24 +1,15 @@
 <script setup>
-import { RouterLink, RouterView } from 'vue-router'
+import NavBar from './components/NavBar.vue';
 </script>
 
 <template>
-  <header>
+  <div>
+  <NavBar></NavBar>
+  </div>
+  <div>
+  <RouterView></RouterView>
+  </div>
 
-    <div class="wrapper">
-      <nav>
-        <RouterLink to="/">Inicio</RouterLink>
-        <RouterLink to="/clients">Clientes</RouterLink>
-        <RouterLink to="/transactions">Transacciones</RouterLink>
-
-      </nav>
-    </div>
-  </header>
-  <body>
-    <h2>este es la appa principoal qe comparte todo</h2>
-  </body>
-
-  <RouterView />
 </template>
 
 <style scoped>

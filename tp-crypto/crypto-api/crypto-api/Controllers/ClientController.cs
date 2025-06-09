@@ -3,6 +3,7 @@ using crypto_api.Validations;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 
 namespace crypto_api.Controllers
@@ -24,6 +25,15 @@ namespace crypto_api.Controllers
         [HttpPost]
         public async Task<ActionResult<Client>> Post(Client newClient)
         {
+            var autHeader = HttpContext.Request.Headers["Authorization"].ToString();
+
+            if (string.IsNullOrEmpty(autHeader) || !autHeader.StartsWith("Bearer"))
+            {
+                return Unauthorized("Token no válido o perro intentando entrar");
+            }
+
+            var token = autHeader.Substring("Bearer ".Length).Trim();
+
             if (!Validation.ValidEmail(newClient))
             {
                 return BadRequest("Email inválido");
