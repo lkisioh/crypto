@@ -4,12 +4,12 @@ import {Form, Field, ErrorMessage} from 'vee-validate';
 import * as yup from 'yup';
 
 let schema = {
-   action: yup.string().nonNullable().required(),
-    crypto_code: yup.string().nonNullable().required(),
-    client_id: yup.number().integer().nonNullable().required(),
+    action: yup.string().nonNullable().required(),
+    crypto_code: yup.string().required(),
+    client_id: yup.number().required(),
     crypto_amount: yup.number().min(0).nonNullable().required(),
-    money: yup.number().min(0).nonNullable().required(),
-    datetime: yup.date().nonNullable().required(),
+    money: yup.number().positive().required(),
+    datetime: yup.date().required(),
 }
 
 let newTransaction = ref({
@@ -21,9 +21,14 @@ let newTransaction = ref({
     datetime: ''
 });
 
-async function enviarDatosApi() {
 
-  let response = await fetch('https://localhost:7294/api/Transactions',
+
+
+  //nuevo
+ async function enviarDatosApi() {
+
+
+  const response = await fetch('https://localhost:7294/api/Transactions',
   {
     method: 'POST',
     body: JSON.stringify(newTransaction.value),
@@ -33,23 +38,22 @@ async function enviarDatosApi() {
     }
   });
 
-  //Verifico si fue exitosa la respuesta
   if (response.ok) {
     alert('New Transaction add succesfully');
   } else {
+
+    console.log('LCDSM')
+    const errorData = await response.json();
+    console.error('Error en la API:', errorData);
     alert('Error to add a new transaction');
-  }}
+  }
+}
 
 
 const clients = ref([]);
 async function traerClientes() {
   let clientApiData= await fetch('https://localhost:7294/api/Client');
   clients.value = await clientApiData.json();
-}
-traerClientes();
-
-if(clients.value===null){
-  alert('Aún no hay clientes cargados')
 }
 
 const fechaHora = ref('');
@@ -64,51 +68,107 @@ function getFechaHoraActual() {
   return `${anio}-${mes}-${dia} ${horas}:${minutos}`;
 }
 
-onMounted(() => {
+function actualizarFechaHora() {
   fechaHora.value = getFechaHoraActual();
+  newTransaction.value.datetime = new Date().toISOString()
+}
+
+onMounted(() => {
+  traerClientes();
+  actualizarFechaHora();
+  setInterval(actualizarFechaHora, 60000); // cada 60 seg
 });
 
+import { watch } from 'vue'
+// Espera que cambien ambos valores y actualiza el total
+watch(
+  () => [newTransaction.value.crypto_code, newTransaction.value.crypto_amount],
+  ([codigo, cantidad]) => {
+    if (codigo && parseFloat(cantidad) > 0) {
+      llamarCryptoApi(codigo, cantidad);
+    } else {
+      money.value = 0;
+    }
+  }
+);
+
+
+
+let money = ref(0)
+const crypto = ref('')
+
+
+async function llamarCryptoApi(codigo, cantidad) {
+  try {
+
+    const url = `https://criptoya.com/api/${codigo}/ars/${cantidad}`;
+
+    const response = await fetch(url);
+    const data = await response.json();
+    crypto.value = data;
+    money.value = data.ripio.ask;
+    newTransaction.value.money = money.value;
+  } catch (error) {
+    console.error('Error llamando a la API de cripto:', error);
+    money.value = 0;
+  }
+}
+
+import TransactionNavBar from './TransactionNavBar.vue';
 </script>
 
 <template>
+  <TransactionNavBar></TransactionNavBar>
 
-  <h1>NEW TRANSACTION FORM</h1>
+  <div v-if="clients.length === 0">
+    <p>Aún no hay clientes cargados.</p>
+  </div>
+
+  <div v-else>
+    <h1>NEW TRANSACTION FORM</h1>
   <h3>La hora es: {{ fechaHora }}</h3>
 
    <Form :validation-schema="schema" @submit="enviarDatosApi" id="formulario-carga">
 
     <label>
       Action:
-      <Field v-model="newTransaction.action" type="text" name="action" id="action"/>
+    <Field as="select" name="action" v-model="newTransaction.action">
+    <option disabled value="">CHOOSE AN ACTION</option>
+    <option value="purchase">PURCHASE</option>
+    <option value="sell">SELL</option>
+    </Field>
     </label>
-    <ErrorMessage name="crypto_code"></ErrorMessage>
-    <br>
-
-    <label>
-      Crypto:
-      <Field v-model="newTransaction.crypto_code" type="text" name="crypto_code" id="crypto_code"/>
-    </label>
-    <ErrorMessage name="crypto_code"></ErrorMessage>
-
-    <br>
+    <ErrorMessage name="action" />
 
     <br>
 
     <label>
+   Crypto:
+    <Field as="select" name="crypto_code" v-model="newTransaction.crypto_code">
+    <option disabled value="">Seleccione una opción</option>
+    <option value="BTC">Bitcoin</option>
+    <option value="ETH">Ethereum</option>
+    <option value="USDC">USDC</option>
+    </Field>
+      </label>
+      <ErrorMessage name="crypto_code" />
+
+    <br>
+
+    <br>
+
+    <label >
       CLIENT:
-      <select>
+      <Field as="select" v-model="newTransaction.client_id" name="client_id" id="client_id">
         <option
             v-for="client in clients"
             :key="client.id"
+            :value="client.id"
         >{{ client.name }}
       </option>
-      </select>
+      </Field>
     </label>
-    <!-- DATOS GUARDADOS AL ELEGIR UN CLIENTE -->
-     <Field v-model="newTransaction.client_id" type="hidden" name="client_id" id="client_id"/>
-     <Field v-model="newTransaction.client_data.id" type="hidden" name="client_data.id" id="client_data.id"/>
-     <Field v-model="newTransaction.client_data.name" type="hidden" name="client_data.name" id="client_data.name"/>
-     <Field v-model="newTransaction.client_data.email" type="hidden" name="client_data.email" id="client_data.email"/>
+
 
     <ErrorMessage name="client_id"></ErrorMessage>
 
@@ -116,14 +176,26 @@ onMounted(() => {
 
     <label>
       CRYPTO AMOUNT:
-      <Field v-model="newTransaction.crypto_amount" type="number" name="crypto_amount" id="crypto_amount"/>
-    </label>
-    <ErrorMessage name="crypto_amount"></ErrorMessage>
+      <Field
+      v-model="newTransaction.crypto_amount"
+       name="crypto_amount"
+      type="number"
+      step="any"
+       id="crypto_amount"
+      />
+    <ErrorMessage name="crypto_amount" />
+      </label>
 
-    <Field v-model="newTransaction.datetime" type="hidden" name="datetime" id="datetime"/>
-
+      <br>
+      <br>
+      <br>
     <input type="submit" value="Guardar">
+
+    <h1 v-if="money > 0">PRECIO ${{ money * newTransaction.crypto_amount }}</h1>
   </Form>
+
+  </div>
+
 </template>
 
 <style>
