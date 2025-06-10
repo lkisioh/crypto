@@ -9,6 +9,7 @@ import ClientListView from '../components/modules/client/components/ClientListVi
 
 import NewTransactionView from '../components/modules/transaction/components/NewTransactionView.vue'
 import TransactionListView from '../components/modules/transaction/components/TransactionListView.vue'
+import ShopView from '@/views/ShopView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -48,6 +49,11 @@ const router = createRouter({
       path: '/transactions/list',
       name: 'transactionlist',
       component: TransactionListView
+    },
+    {
+      path: '/shop',
+      name: 'shop',
+      component: ShopView
     }
   ],
 })
