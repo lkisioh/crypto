@@ -437,6 +437,12 @@
         "additionalProperties": false
       },
       "Transaction": {
+        "required": [
+          "action",
+          "client_id",
+          "crypto_code",
+          "datetime"
+        ],
         "type": "object",
         "properties": {
           "id": {
@@ -444,12 +450,12 @@
             "format": "int32"
           },
           "action": {
-            "type": "string",
-            "nullable": true
+            "minLength": 1,
+            "type": "string"
           },
           "crypto_code": {
-            "type": "string",
-            "nullable": true
+            "minLength": 1,
+            "type": "string"
           },
           "client_id": {
             "type": "integer",
