@@ -6,6 +6,8 @@ import TransactionsView from '../views/TransactionsView.vue'
 
 import NewClientView from '../components/modules/client/components/NewClientView.vue'
 import ClientListView from '../components/modules/client/components/ClientListView.vue'
+import ClientView from '@/components/modules/client/components/ClientView.vue'
+import ClientEditView from '@/components/modules/client/components/ClientEditView.vue'
 
 import NewTransactionView from '../components/modules/transaction/components/NewTransactionView.vue'
 import TransactionListView from '../components/modules/transaction/components/TransactionListView.vue'
@@ -54,7 +56,18 @@ const router = createRouter({
       path: '/shop',
       name: 'shop',
       component: ShopView
+    },
+    {
+      path: '/client/:id',
+      name: 'client',
+      component: ClientView
+    },
+    {
+      path: '/client/edit/:id',
+      name: 'clientEdit',
+      component: ClientEditView
     }
+
   ],
 })
 

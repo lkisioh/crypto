@@ -1,3 +1,34 @@
+<script setup>
+import ClientNavBar from './ClientNavBar.vue';
+import { ref } from 'vue';
+
+const clients = ref([]);
+async function cargarDatosApi() {
+  let respuesta = await fetch('https://localhost:7294/api/Client');
+  clients.value = await respuesta.json();
+}
+cargarDatosApi();
+
+async function  deleteClient(id) {
+
+  let response = await fetch('https://localhost:7294/api/Client/'+id,
+  {
+    method: 'DELETE',
+    body: JSON.stringify(),
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer HaciendoElPost'
+    }
+  });
+  //Faltaría verificar si el cliente tiene transacciones y si desea eliminarlas también
+  if (response.ok) {
+    alert('Client deleted succesfully');
+    cargarDatosApi();
+  } else {
+    alert('Error deleting client');
+  }}
+
+</script>
 <template>
   <ClientNavBar></ClientNavBar>
 
@@ -11,7 +42,7 @@
             <th class="py-3 px-4 text-left">ID</th>
             <th class="py-3 px-4 text-left">Nombre</th>
             <th class="py-3 px-4 text-left">Email</th>
-            <th class="py-3 px-4 text-left">Editar</th>
+            <th class="py-3 px-4 text-left">Ver</th>
             <th class="py-3 px-4 text-left">Modificar</th>
             <th class="py-3 px-4 text-left">Eliminar</th>
           </tr>
@@ -23,13 +54,13 @@
             <td class="py-3 px-4 border-t">{{ client.name }}</td>
             <td class="py-3 px-4 border-t">{{ client.email }}</td>
             <td class="py-3 px-4 border-t">
-              <button class="text-blue-600 hover:underline">Editar</button>
+              <button class="text-blue-600 hover:underline"><RouterLink :to="'/client/' + client.id">Ver</RouterLink></button>
             </td>
             <td class="py-3 px-4 border-t">
-              <button class="text-green-600 hover:underline">Modificar</button>
+              <button class="text-green-600 hover:underline"><RouterLink :to="'/client/edit/' + client.id">Modificar</RouterLink></button>
             </td>
             <td class="py-3 px-4 border-t">
-              <button class="text-red-600 hover:underline">Eliminar</button>
+              <button @click="deleteClient(client.id)" class="text-red-600 hover:underline">Eliminar</button>
             </td>
           </tr>
         </tbody>
@@ -39,17 +70,7 @@
 
 </template>
 
-<script setup>
-import ClientNavBar from './ClientNavBar.vue';
-import { ref } from 'vue';
 
-const clients = ref([]);
-async function cargarDatosApi() {
-  let respuesta = await fetch('https://localhost:7294/api/Client');
-  clients.value = await respuesta.json();
-}
-cargarDatosApi();
-</script>
 
 <style scoped>
 h1{
