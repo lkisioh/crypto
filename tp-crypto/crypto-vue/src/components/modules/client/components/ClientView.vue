@@ -1,13 +1,11 @@
 <script setup>
   import { ref } from 'vue';
+  import ClientNavBar from './ClientNavBar.vue';
   import { useRoute } from 'vue-router';
 
   let route = useRoute()
   let id = route.params.id
-
-import ClientNavBar from './ClientNavBar.vue';
-
-let client = ref(undefined);
+  let client = ref(undefined);
 
   async function BuscarDatosApi() {
 
@@ -17,7 +15,7 @@ let client = ref(undefined);
     body: JSON.stringify(),
     headers: {
       'Content-Type': 'application/json',
-      'Authorization': 'Bearer HaciendoElPost'
+      'Authorization': 'Bearer HaciendoElGetCliente'
     }
   });
 
@@ -37,11 +35,14 @@ let client = ref(undefined);
 
 <template>
   <ClientNavBar></ClientNavBar>
-  <div v-if= "client === undefined"> CARGANDO...</div>
+  <div v-if= "client === undefined"> LOADING...</div>
   <div v-else>
     <div class="form-container">
 
     <h1>CLIENT</h1>
+
+    <h2>ID</h2>
+    <h3>{{ client.id }}</h3>
 
     <h2>Name</h2>
     <h3>{{ client.name }}</h3>

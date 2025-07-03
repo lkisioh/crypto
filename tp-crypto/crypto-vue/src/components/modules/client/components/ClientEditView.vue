@@ -2,11 +2,11 @@
 import { ref } from 'vue';
 import {Form, Field, ErrorMessage} from 'vee-validate';
 import * as yup from 'yup';
-  import { useRoute } from 'vue-router';
+  import { useRoute,useRouter } from 'vue-router';
 
   let route = useRoute()
   let id = route.params.id
-
+let router =useRouter()
 
 import ClientNavBar from './ClientNavBar.vue';
 
@@ -29,7 +29,7 @@ async function BuscarDatosApi() {
     body: JSON.stringify(),
     headers: {
       'Content-Type': 'application/json',
-      'Authorization': 'Bearer HaciendoElPost'
+      'Authorization': 'Bearer SearchToEdit'
     }
   });
 
@@ -52,13 +52,14 @@ async function EditarDatosApi() {
     body: JSON.stringify(editedClient.value),
     headers: {
       'Content-Type': 'application/json',
-      'Authorization': 'Bearer HaciendoElPost'
+      'Authorization': 'Bearer PatchingClient'
     }
   });
 
   //Verifico si fue exitosa la respuesta
   if (response.ok) {
     alert('Edit succesfully');
+    router.push('/clients/list')
 
   } else {
     alert('Error editing client');

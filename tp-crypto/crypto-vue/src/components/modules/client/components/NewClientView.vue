@@ -23,7 +23,7 @@ async function enviarDatosApi() {
     body: JSON.stringify(newClient.value),
     headers: {
       'Content-Type': 'application/json',
-      'Authorization': 'Bearer HaciendoElPost'
+      'Authorization': 'Bearer CreateClient'
     }
   });
 

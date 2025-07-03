@@ -11,6 +11,9 @@ import ClientEditView from '@/components/modules/client/components/ClientEditVie
 
 import NewTransactionView from '../components/modules/transaction/components/NewTransactionView.vue'
 import TransactionListView from '../components/modules/transaction/components/TransactionListView.vue'
+import TransactionView from '@/components/modules/transaction/components/TransactionView.vue'
+import TransactionEditView from '@/components/modules/transaction/components/TransactionEditView.vue'
+
 import ShopView from '@/views/ShopView.vue'
 
 const router = createRouter({
@@ -66,8 +69,17 @@ const router = createRouter({
       path: '/client/edit/:id',
       name: 'clientEdit',
       component: ClientEditView
+    },
+    {
+      path: '/transaction/:id',
+      name: 'transaction',
+      component: TransactionView
+    },
+    {
+      path: '/transaction/edit/:id',
+      name: 'transactionEdit',
+      component: TransactionEditView
     }
-
   ],
 })
 
