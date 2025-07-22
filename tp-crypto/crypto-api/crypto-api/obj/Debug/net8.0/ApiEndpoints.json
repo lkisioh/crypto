@@ -194,7 +194,7 @@
         "IsRequired": true
       },
       {
-        "Name": "transaction",
+        "Name": "editTransaction",
         "Type": "crypto_api.Models.Transaction",
         "IsRequired": true
       }

@@ -25,6 +25,9 @@ builder.Services.AddCors(options =>
         .AllowAnyHeader();
     });
 });
+//conexiones externa de cliente 
+
+builder.Services.AddHttpClient();
 
 var app = builder.Build();
 

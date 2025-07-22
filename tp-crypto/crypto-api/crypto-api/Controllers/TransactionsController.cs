@@ -2,6 +2,8 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Net.Http;
+using System.Text.Json;
 
 namespace crypto_api.Controllers
 {
@@ -10,7 +12,11 @@ namespace crypto_api.Controllers
     public class TransactionsController : ControllerBase
     {
         private readonly AppDbContext _context;
-        public TransactionsController(AppDbContext context) { _context = context; }
+        private readonly HttpClient _httpClient;
+        public TransactionsController(AppDbContext context, IHttpClientFactory httpClientFactory) { 
+            _context = context;
+            _httpClient = httpClientFactory.CreateClient();
+        }
 
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Transaction>>> Get()
@@ -21,10 +27,54 @@ namespace crypto_api.Controllers
         [HttpPost]
         public async Task<ActionResult<Transaction>> Post(Transaction newTransaction)
         {
-            _context.Transactions.Add(newTransaction);
-            await _context.SaveChangesAsync();
+            // Se puede vender
+            if (newTransaction.action == "sell")
+            {
+                var totalBuy = await _context.Transactions
+                    .Where(t => t.client_id == newTransaction.client_id && t.crypto_code == newTransaction.crypto_code && t.action == "purchase")
+                    .SumAsync(t => t.crypto_amount);
 
-            return CreatedAtAction(nameof(Get), new { id = newTransaction.id }, newTransaction);
+                var totalSold = await _context.Transactions
+                    .Where(t => t.client_id == newTransaction.client_id && t.crypto_code == newTransaction.crypto_code && t.action == "sell")
+                    .SumAsync(t => t.crypto_amount);
+
+                var total = totalBuy - totalSold;
+
+                if (newTransaction.crypto_amount > total)
+                    return BadRequest("No tiene suficientes cryptomonedas para vender");
+
+            }
+
+            // Llamar a la API externa
+            string url = $"https://criptoya.com/api/satoshitango/{newTransaction.crypto_code}/ars";
+            try
+            {
+                var response = await _httpClient.GetAsync(url);
+                response.EnsureSuccessStatusCode();
+
+                var json = await response.Content.ReadAsStringAsync();
+
+                using var doc = JsonDocument.Parse(json);
+                var root = doc.RootElement;
+
+                decimal cost = root.GetProperty("totalAsk").GetDecimal();
+
+                decimal totalMoney = (decimal)newTransaction.crypto_amount * cost;
+                newTransaction.money = (float)totalMoney;
+
+                DateTime time = DateTime.Now;
+                newTransaction.datetime = time;
+
+                _context.Transactions.Add(newTransaction);
+                await _context.SaveChangesAsync();
+
+                return CreatedAtAction(nameof(Get), new { id = newTransaction.id }, newTransaction);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest($"Error al llamar API externa: {ex.Message}");
+            }
+
         }
         [HttpGet("{id}")]
         public async Task<ActionResult<Transaction>> Get(int id)
@@ -41,16 +91,58 @@ namespace crypto_api.Controllers
         }
 
         [HttpPatch("{id}")]
-        public async Task<ActionResult> Patch(int id, Transaction transaction)
+        public async Task<ActionResult> Patch(int id, Transaction editTransaction)
         {
-            if (id != transaction.id)
+            if (id != editTransaction.id)
             {
                 return BadRequest();
             }
-            _context.Entry(transaction).State = EntityState.Modified;
-            await _context.SaveChangesAsync();
+            if (editTransaction.action == "sell")
+            {
+                var totalBuy = await _context.Transactions
+                    .Where(t => t.client_id == editTransaction.client_id && t.crypto_code == editTransaction.crypto_code && t.action == "purchase")
+                    .SumAsync(t => t.crypto_amount);
 
-            return NoContent();
+                var totalSold = await _context.Transactions
+                    .Where(t => t.client_id == editTransaction.client_id && t.crypto_code == editTransaction.crypto_code && t.action == "sell")
+                    .SumAsync(t => t.crypto_amount);
+
+                var total = totalBuy - totalSold;
+
+                if (editTransaction.crypto_amount > total)
+                    return BadRequest("No tiene suficientes cryptomonedas para vender");
+
+            }
+            string url = $"https://criptoya.com/api/satoshitango/{editTransaction.crypto_code}/ars";
+            try
+            {
+                var response = await _httpClient.GetAsync(url);
+                response.EnsureSuccessStatusCode();
+
+                var json = await response.Content.ReadAsStringAsync();
+
+                using var doc = JsonDocument.Parse(json);
+                var root = doc.RootElement;
+
+                decimal cost = root.GetProperty("totalAsk").GetDecimal();
+
+                decimal totalMoney = (decimal)editTransaction.crypto_amount * cost;
+                editTransaction.money = (float)totalMoney;
+
+                DateTime time = DateTime.Now;
+                editTransaction.datetime = time;
+
+                _context.Entry(editTransaction).State = EntityState.Modified;
+                await _context.SaveChangesAsync();
+
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest($"Error al llamar API externa: {ex.Message}");
+            }
+
+            
         }
         [HttpDelete("{id}")]
         public async Task<ActionResult> Delete(int id)

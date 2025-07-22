@@ -11,6 +11,7 @@ namespace crypto_api.Models
         public int id { get; set; }
         [NotNull]
         public string name { get; set; }
+
         [NotNull, MinLength(7),]
         public string email { get; set; }
        

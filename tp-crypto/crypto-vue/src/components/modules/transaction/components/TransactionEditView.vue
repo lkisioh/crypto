@@ -81,63 +81,12 @@ async function traerClientes() {
   clients.value = await clientApiData.json();
 }
 
-const fechaHora = ref('');
-
-function getFechaHoraActual() {
-  const x = new Date();
-  const anio = x.getFullYear();
-  const mes = String(x.getMonth() + 1).padStart(2, '0');
-  const dia = String(x.getDate()).padStart(2, '0');
-  const horas = String(x.getHours()).padStart(2, '0');
-  const minutos = String(x.getMinutes()).padStart(2, '0');
-  return `${anio}-${mes}-${dia} ${horas}:${minutos}`;
-}
-
-function actualizarFechaHora() {
-  fechaHora.value = getFechaHoraActual();
-  editTransaction.value.datetime = new Date().toISOString()
-}
 
 onMounted(() => {
   traerClientes();
-  actualizarFechaHora();
-  setInterval(actualizarFechaHora, 60000); // cada 60 seg
+
 });
 
-import { watch } from 'vue'
-// Espera que cambien ambos valores y actualiza el total
-watch(
-  () => [editTransaction.value.crypto_code, editTransaction.value.crypto_amount],
-  ([codigo, cantidad]) => {
-    if (codigo && parseFloat(cantidad) > 0) {
-      llamarCryptoApi(codigo, cantidad);
-    } else {
-      money.value = 0;
-    }
-  }
-);
-
-
-
-let money = ref(0)
-const crypto = ref('')
-
-
-async function llamarCryptoApi(codigo, cantidad) {
-  try {
-
-    const url = `https://criptoya.com/api/${codigo}/ars/${cantidad}`;
-
-    const response = await fetch(url);
-    const data = await response.json();
-    crypto.value = data;
-    money.value = data.ripio.ask;
-    editTransaction.value.money = money.value * editTransaction.value.crypto_amount;
-  } catch (error) {
-    console.error('Error llamando a la API de cripto:', error);
-    money.value = 0;
-  }
-}
 
 import TransactionNavBar from './TransactionNavBar.vue';
 </script>
@@ -152,7 +101,6 @@ import TransactionNavBar from './TransactionNavBar.vue';
   <div v-else>
     <h1>EDIT TRANSACTION</h1>
     <h2>ID {{ editTransaction.id }}</h2>
-    <h3>La hora es: {{ fechaHora }}</h3>
     <div class="form-container">
 
       <Form :validation-schema="schema" @submit="EditarDatosApi" id="formulario-carga" class="form-box label ">

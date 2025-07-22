@@ -22,17 +22,20 @@ namespace crypto_api.Controllers
             return await _context.Clients
                 .ToListAsync();
         }
+
+
         [HttpPost]
         public async Task<ActionResult<Client>> Post(Client newClient)
         {
-            var autHeader = HttpContext.Request.Headers["Authorization"].ToString();
+           // var autHeader = HttpContext.Request.Headers["Authorization"].ToString();
 
-            if (string.IsNullOrEmpty(autHeader) || !autHeader.StartsWith("Bearer"))
-            {
-                return Unauthorized("Token no válido o perro intentando entrar");
-            }
+           //if (string.IsNullOrEmpty(autHeader) || !autHeader.StartsWith("Bearer"))
+           // {
+                //return Unauthorized("Token no válido o perro intentando entrar");
+           // }
 
-            var token = autHeader.Substring("Bearer ".Length).Trim();
+            //var token = autHeader.Substring("Bearer ".Length).Trim();
+
 
             if (!Validation.ValidEmail(newClient))
             {
@@ -42,7 +45,12 @@ namespace crypto_api.Controllers
             await _context.SaveChangesAsync();
 
             return CreatedAtAction(nameof(Get), new { id = newClient.id }, newClient);
+
+
+
         }
+
+
         [HttpGet("{id}")]
         public async Task<ActionResult<Client>> Get(int id)
         {

@@ -14,6 +14,7 @@ namespace crypto_api.Models
         [NotNull, Required]
        public int client_id { get; set; }
        public Client? client_data { get; set; }
+
         [NotNull]
        public float crypto_amount { get; set; }
         [NotNull]
